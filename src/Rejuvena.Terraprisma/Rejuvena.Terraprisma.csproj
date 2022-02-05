@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <Import Project="..\locations.targets" />
-    
+
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
@@ -9,9 +9,9 @@
         <LangVersion>default</LangVersion>
         <OutDir>$(tModLoaderPath)</OutDir>
     </PropertyGroup>
-    
+
     <ItemGroup>
-      <PackageReference Include="Mono.Cecil" Version="0.11.4" />
+        <PackageReference Include="Mono.Cecil" Version="0.11.4" />
     </ItemGroup>
 
 </Project>

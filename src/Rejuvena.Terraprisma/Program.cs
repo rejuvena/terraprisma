@@ -59,7 +59,7 @@ namespace Rejuvena.Terraprisma
                 $"Launched with arguments: {string.Join(", ", args)}"
             );
             
-            CecilResolver.Resolve();
+            CecilResolver.Resolve(args);
             
             Logger.Dispose();
         }
