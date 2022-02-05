@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Rejuvena.Terraprisma.Patcher;
 
@@ -50,6 +51,12 @@ namespace Rejuvena.Terraprisma
             Logger.LogMessage(
                 "Terraprisma",
                 $"Latest commit as of release ({Commit.Latest.Version}): {Commit.Latest.LongForm} ({Commit.Latest.ShortForm})"
+            );
+
+            Logger.LogMessage(
+                "Terraprisma",
+                "Debug",
+                $"Launched with arguments: {string.Join(", ", args)}"
             );
             
             CecilResolver.Resolve();
