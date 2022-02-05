@@ -27,7 +27,7 @@ namespace Rejuvena.Terraprisma
                 CreatedFile = File.Create(Path.Combine(
                     Program.TerrarprismaDataPath,
                     "Logs",
-                    $"{DateTime.Now:dd-mm-yyyy-hh-mm-ss}.txt"
+                    $"{DateTime.Now:dd-MM-yyyy-hh-mm-ss}.txt"
                 ));
 
                 FileWriter = new StreamWriter(CreatedFile);
