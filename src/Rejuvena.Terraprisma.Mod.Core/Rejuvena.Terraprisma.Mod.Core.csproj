@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="..\locations.targets" />
+    
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>default</LangVersion>
+        <OutDir>$(tModLoaderPath)</OutDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Rejuvena.Terraprisma\Rejuvena.Terraprisma.csproj" />
+    </ItemGroup>
+
+</Project>

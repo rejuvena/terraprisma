@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "Core": {
+      "commandName": "Executable",
+      "executablePath": "dotnet.exe",
+      "commandLineArgs": "Rejuvena.Terraprisma.dll",
+      "workingDirectory": "$(tModLoaderPath)"
+    }
+  }
+}
