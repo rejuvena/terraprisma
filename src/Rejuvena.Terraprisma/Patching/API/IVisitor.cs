@@ -1,4 +1,4 @@
-﻿namespace Rejuvena.Terraprisma.Patcher.API
+﻿namespace Rejuvena.Terraprisma.Patching.API
 {
     /// <summary>
     ///     A basic interface containing core properties and methods of a visitor.

@@ -19,8 +19,4 @@
       <EmbeddedResource Include="Resources\TerraprismaImage" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Utilities" />
-    </ItemGroup>
-
 </Project>

@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
-namespace Rejuvena.Terraprisma
+namespace Rejuvena.Terraprisma.Utilities
 {
     // As of Windows 10 version 1511, ANSI support is available.
     // We need to manually enable it, however.
@@ -28,32 +28,18 @@ namespace Rejuvena.Terraprisma
         [SupportedOSPlatform("windows")]
         internal static void Bootstrap()
         {
-            Logger.LogMessage(
-                "WindowsAnsiBootstrapper",
-                "Debug",
-                "Detected a Windows environment, changing console output mode."
-            );
-
             IntPtr iStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
             if (!GetConsoleMode(iStdOut, out uint outConsoleMode))
             {
-                Logger.LogMessage(
-                    "WindowsAnsiBootstrapper",
-                    "Debug",
-                    "Failed to get output console mode."
-                );
+                Console.WriteLine("Failed to get output console mode.");
                 return;
             }
 
             outConsoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN;
 
             if (!SetConsoleMode(iStdOut, outConsoleMode))
-                Logger.LogMessage(
-                    "[WindowsAnsiBootstrapper]",
-                    "Debug",
-                    $"Failed to set output console mode, error code: {GetLastError()}"
-                );
+                Console.WriteLine($"Failed to set output console mode, error code: {GetLastError()}");
         }
     }
 }

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Mono.Cecil;
+using Rejuvena.Terraprisma.Utilities;
 
-namespace Rejuvena.Terraprisma.Patcher
+namespace Rejuvena.Terraprisma.Patching.Cecil
 {
     public class LibraryAssemblyResolver : BaseAssemblyResolver
     {

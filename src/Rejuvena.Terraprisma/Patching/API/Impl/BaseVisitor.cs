@@ -1,4 +1,4 @@
-﻿namespace Rejuvena.Terraprisma.Patcher.API.Impl
+﻿namespace Rejuvena.Terraprisma.Patching.API.Impl
 {
     public abstract class BaseVisitor<TVisited> : IVisitor<TVisited>
     {

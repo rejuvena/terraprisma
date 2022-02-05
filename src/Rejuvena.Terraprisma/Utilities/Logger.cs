@@ -3,24 +3,28 @@
 using System;
 using System.IO;
 
-namespace Rejuvena.Terraprisma
+namespace Rejuvena.Terraprisma.Utilities
 {
     /// <summary>
     ///     Provides various logging utilities.
     /// </summary>
     public static class Logger
     {
-        public static bool Initiated { get; private set; }
+        /// <summary>
+        ///     Whether the logger has been initialized.
+        /// </summary>
+        public static bool Initialized { get; private set; }
 
+        /// <summary>
+        ///     If a file was created, this <see cref="StreamWriter"/> writes data to the log file.
+        /// </summary>
         public static StreamWriter? FileWriter { get; private set; }
 
         private static FileStream? CreatedFile;
 
-        internal static void Initiate()
+        internal static void Initialize()
         {
-            Initiated = true;
-
-            Directory.CreateDirectory(Path.Combine(Program.TerrarprismaDataPath, "Logs"));
+            Initialized = true;
 
             try
             {
@@ -51,18 +55,13 @@ namespace Rejuvena.Terraprisma
 
             Console.WriteLine(message);
             FileWriter?.WriteLine(message);
+            FileWriter?.Flush();
+            CreatedFile?.Flush();
         }
 
         /// <inheritdoc cref="LogMessage(string,string)"/>
         /// <param name="severity">The severity (INFO, DEBUG, etc.).</param>
         public static void LogMessage(string owner, string severity, string message) =>
             LogMessage(owner, $"[{severity}] {message}");
-
-        internal static void Dispose()
-        {
-            LogMessage("Logger", "Debug", "Disposing logging instance.");
-            FileWriter?.Dispose();
-            CreatedFile?.Dispose();
-        }
     }
 }

@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 
-namespace Rejuvena.Terraprisma.Patcher.API
+namespace Rejuvena.Terraprisma.Patching.API
 {
     /// <summary>
     ///     A loadable mod.
     /// </summary>
-    public abstract class Mod
+    public abstract class PatchMod
     {
         public abstract IEnumerable<IVisitor> ResolveVisitors();
     }
