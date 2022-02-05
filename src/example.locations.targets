@@ -1,5 +1,5 @@
 <Project ToolsVersion="14.0">
-    <ItemGroup>
+    <PropertyGroup>
         <tModLoaderPath>INSERT HERE</tModLoaderPath>
-    </ItemGroup>
+    </PropertyGroup>
 </Project>
