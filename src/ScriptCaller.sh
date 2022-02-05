@@ -84,7 +84,7 @@ fi
 if [[ -f "$install_dir/dotnet" || -f "$install_dir/dotnet.exe" ]]; then
 	echo "Launched Using Local Dotnet"
 	chmod a+x "$install_dir/dotnet"
-	exec "$install_dir/dotnet" tModLoader.dll "$@"
+	exec "$install_dir/dotnet" Rejuvena.Terraprisma.dll "$@"
 else
 	echo "Launched Using System Dotnet"
 	exec dotnet Rejuvena.Terraprisma.dll "$@"
