@@ -66,8 +66,14 @@ namespace Rejuvena.Terraprisma.Patcher
             // Load libraries required by tModLoader into the AppDomain
             AppDomain.CurrentDomain.AssemblyResolve += ResolveFromLibraryFolder;
             // AssemblyLoadContext.Default.ResolvingUnmanagedDll += ResolveNativeLibrary;
-            foreach (FileInfo nativeDll in new DirectoryInfo(Path.Combine(Program.LocalPath, "Libraries", "Native", GetNativeDir())).GetFiles())
-                NativeLibrary.Load(nativeDll.FullName);
+            foreach (FileInfo nativeDll in new DirectoryInfo(Path.Combine(Program.LocalPath, "Libraries", "Native",
+                GetNativeDir())).GetFiles())
+            {
+                IntPtr a = NativeLibrary.Load(nativeDll.FullName);
+
+                if (a == IntPtr.Zero)
+                    Console.WriteLine("AAAAAAAAAA IT DIDN'T LOAD UH OH");
+            }
 
             Assembly tmlAsm = Assembly.Load(d, asmStream.ToArray());
             tmlAsm.GetType("MonoLaunch")!.GetMethod(
@@ -112,8 +118,6 @@ namespace Rejuvena.Terraprisma.Patcher
 
             return asm;
         }
-
-        private static readonly Dictionary<string, IntPtr> assemblies = new();
 
         private static string GetNativeDir()
         {
