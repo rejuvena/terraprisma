@@ -49,9 +49,9 @@ echo "Logging to $LogFile"
 
 exec 3>&1 > >(tee "$LogFile") 2>&1
 
-if [[ "$_uname" == *"_NT"* ]]; then
-	run_script ./Remove13_64Bit.sh
-fi
+#if [[ "$_uname" == *"_NT"* ]]; then
+#	run_script ./Remove13_64Bit.sh
+#fi
 
 . ./UnixLinkerFix.sh
 run_script ./PlatformLibsDeploy.sh
