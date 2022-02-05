@@ -9,21 +9,21 @@ namespace Rejuvena.Terraprisma.Patching.Cecil
 {
     public class LibraryAssemblyResolver : BaseAssemblyResolver
     {
-        private DefaultAssemblyResolver DefaultResolver = new();
-        private List<AssemblyDefinition> Libraries;
+        private readonly DefaultAssemblyResolver DefaultResolver = new();
+        private readonly List<AssemblyDefinition> Libraries = new();
 
         public LibraryAssemblyResolver()
         {
-            Libraries = new List<AssemblyDefinition>();
-            
-            foreach (string dll in Directory.GetFiles(Path.Combine(
-                Program.LocalPath,
-                "Libraries"
-            ), "*.dll", SearchOption.AllDirectories))
+            foreach (string dll in Directory.GetFiles(
+                Path.Combine(Program.LocalPath, "Libraries"), 
+                "*.dll", SearchOption.AllDirectories)
+            )
             {
-                if (dll.Contains("runtimes") || dll.Contains("resources") || dll.Contains("Native") || dll.Contains("lib"))
+                // Ignore misc. DLLs that we don't care about.
+                if (dll.Contains("runtimes") || dll.Contains("resources") || dll.Contains("Native"))
                     continue;
                 
+                // Add all usable libraries to a collection that we use to resolve from later.
                 try
                 {
                     Libraries.Add(AssemblyDefinition.ReadAssembly(dll));
@@ -41,10 +41,12 @@ namespace Rejuvena.Terraprisma.Patching.Cecil
 
             try
             {
+                // Try to resolve normally.
                 assembly = DefaultResolver.Resolve(name);
             }
             catch
             {
+                // Resolve from our collection now. Throw if nothing is found (First instead of FirstOrDefault).
                 assembly = Libraries.First(x => x.Name.Name == name.Name);
             }
             
