@@ -7,7 +7,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <LangVersion>default</LangVersion>
-        <OutDir>$(tModLoaderPath)</OutDir>
+        <OutDir>$(tModLoaderPath)\Terraprisma\Mods</OutDir>
     </PropertyGroup>
 
     <ItemGroup>

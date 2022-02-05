@@ -30,7 +30,6 @@ namespace Rejuvena.Terraprisma.Patcher
 
             Directory.CreateDirectory(Path.Combine(Program.TerrarprismaDataPath, "Mods"));
 
-            LoadFromAppDomainLocation();
             LoadFromModsFolder();
 
             foreach (Mod? mod in Assembles.Values.Select(x => Activator.CreateInstance(x) as Mod))
@@ -47,16 +46,6 @@ namespace Rejuvena.Terraprisma.Patcher
                 
                 AvailableMods.Add(mod);
             }
-        }
-
-        private static void LoadFromAppDomainLocation()
-        {
-            FileInfo[] mods = new DirectoryInfo(
-                AppDomain.CurrentDomain.BaseDirectory
-            ).GetFiles($"{AssemblyPrefix}.*.dll");
-
-            foreach (string mod in mods.Select(x => x.FullName))
-                LoadMod(mod);
         }
 
         private static void LoadFromModsFolder()
