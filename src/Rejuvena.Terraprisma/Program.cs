@@ -35,11 +35,6 @@ namespace Rejuvena.Terraprisma
 
             Logger.LogMessage(
                 "Terraprisma",
-                $"Latest commit as of release ({Commit.Latest.Version}): {Commit.Latest.LongForm} ({Commit.Latest.ShortForm})"
-            );
-
-            Logger.LogMessage(
-                "Terraprisma",
                 "Debug",
                 $"Launched with arguments: {string.Join(", ", args)}"
             );

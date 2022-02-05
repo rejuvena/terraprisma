@@ -16,11 +16,6 @@ namespace Rejuvena.Terraprisma.Patcher
     {
         public static AssemblyDefinition? TModLoaderAssembly { get; private set; }
 
-        /// <summary>
-        ///     Special version data provided by the tModLoader assembly, such as the Terraria version, tModLoader version, and commit SHA.
-        /// </summary>
-        public static CustomAttribute? TModLoaderVersionData { get; private set; }
-
         internal static void Resolve(string[] args)
         {
             Logger.LogMessage("CecilResolver", "Debug", "Beginning initial commit resolution.");
@@ -29,28 +24,7 @@ namespace Rejuvena.Terraprisma.Patcher
             {
                 AssemblyResolver = new LibraryAssemblyResolver()
             });
-
-            TModLoaderVersionData = TModLoaderAssembly.CustomAttributes.First(x =>
-                x.AttributeType.FullName == "System.Reflection.AssemblyInformationalVersionAttribute"
-            );
-
-            string[] data = ((string) TModLoaderVersionData.ConstructorArguments[0].Value).Split('-');
-
-            Logger.LogMessage("CecilResolver", $"Resolved tModLoader assembly, commit: {data[3]}");
-
-            if (data[3] != Commit.Latest.LongForm)
-            {
-                Logger.LogMessage(
-                    "CecilResolver",
-                    "Warning",
-                    "Latest confirmed commit does not match your current commit. Press <enter> to continue."
-                );
-
-                while (Console.ReadKey().Key != ConsoleKey.Enter)
-                {
-                }
-            }
-
+            
             Logger.LogMessage("CecilResolver", "Proceeding with mod resolution.");
 
             ModResolver.Resolve();
