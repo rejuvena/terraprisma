@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Loader;
 using Mono.Cecil;
 using Rejuvena.Terraprisma.Utilities;
 
@@ -12,10 +16,31 @@ namespace Rejuvena.Terraprisma.Patching
     /// </summary>
     public static class PatchRuntime
     {
+        public static readonly NativeAssemblyLoadContext LoadContext = new();
+
+        /// <summary>
+        ///     A dictionary containing hardcoded path redirects.
+        /// </summary>
+        public static readonly Dictionary<string, string> HardcodedAssemblyNames = new()
+        {
+            {"ReLogic", Path.Combine(Program.LocalPath, "Libraries", "ReLogic", "1.0.0", "ReLogic.dll")},
+            {
+                "Microsoft.CodeAnalysis", Path.Combine(
+                    Program.LocalPath,
+                    "Libraries",
+                    "microsoft.codeanalysis.common",
+                    "4.0.0-6.final",
+                    "lib",
+                    "netcoreapp3.1",
+                    "Microsoft.CodeAnalysis.dll"
+                )
+            },
+        };
+
         /// <summary>
         ///     Runs tModLoader, assuming the provided <paramref name="module"/> is tModLoader's.
         /// </summary>
-        internal static void RunModule(ModuleDefinition module, string[] args)
+        internal static void RunModule(ModuleDefinition module, IEnumerable<string> args)
         {
             ResolveLibraries();
 
@@ -23,16 +48,25 @@ namespace Rejuvena.Terraprisma.Patching
 
             module.Write(moduleStream, new WriterParameters());
 
+            string tempFile = Path.Join(Program.TerrarprismaDataPath, "Temp", "temp.dll");
+
+            Directory.CreateDirectory(Path.Join(Program.TerrarprismaDataPath, "Temp"));
+            
+            if (File.Exists(tempFile))
+                File.Delete(tempFile);
+            
+            File.WriteAllBytes(tempFile, moduleStream.ToArray());
+            
+            /*
             byte[] data = moduleStream.ToArray();
             Assembly tmlAsm = Assembly.Load(data, moduleStream.ToArray());
+             */
+            Assembly tmlAsm = LoadContext.LoadFromAssemblyPath(tempFile);
 
-            tmlAsm.GetType("MonoLaunch")!.GetMethod(
-                "Main",
-                BindingFlags.Static | BindingFlags.NonPublic
-            )!.Invoke(null, new object?[] {args});
+            InvokeMonoLaunch(tmlAsm, args);
         }
 
-        private static void InvokeMonoLaunch(Assembly assembly, string[] args)
+        private static void InvokeMonoLaunch(Assembly assembly, IEnumerable args)
         {
             Type? monoLaunch = assembly.GetType("MonoLaunch");
 
@@ -69,6 +103,7 @@ namespace Rejuvena.Terraprisma.Patching
         {
             // Load libraries required by tModLoader into the AppDomain manually.
             AppDomain.CurrentDomain.AssemblyResolve += ResolveFromLibraryFolder;
+            LoadContext.Resolving += LoadContextOnResolving;
 
             // TODO: This seems useless?
             foreach (FileInfo nativeDll in new DirectoryInfo(Path.Combine(Program.LocalPath, "Libraries", "Native",
@@ -76,14 +111,20 @@ namespace Rejuvena.Terraprisma.Patching
                 NativeLibrary.Load(nativeDll.FullName);
         }
 
+        private static Assembly LoadContextOnResolving(AssemblyLoadContext arg1, AssemblyName arg2) =>
+            ResolveFromLibraryFolder(null, new ResolveEventArgs(arg2.FullName ?? "", null));
+
         private static Assembly ResolveFromLibraryFolder(object? sender, ResolveEventArgs args)
         {
             AssemblyName name = new(args.Name);
             string asmName = name.Name ?? "";
             string asmVers = name.Version?.ToString() ?? "";
 
+            if (HardcodedAssemblyNames.ContainsKey(asmName))
+                return Assembly.LoadFile(HardcodedAssemblyNames[asmName]);
+
             // 1.0.0.0 is shortened to 1.0.0 in the Libraries folder.
-            if (asmVers == "1.0.0.0")
+            if (asmVers is "1.0.0.0" or "")
                 asmVers = "1.0.0";
 
             string path = Path.Combine(Program.LocalPath, "Libraries", asmName, asmVers, asmName + ".dll");

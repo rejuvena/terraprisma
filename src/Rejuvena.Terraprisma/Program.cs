@@ -42,24 +42,24 @@ namespace Rejuvena.Terraprisma
 
             ModResolver.Resolve();
 
-            ModuleDefinition? tMLModule = CecilResolver.Resolve();
+            ModuleDefinition? tmlModule = CecilResolver.Resolve();
 
-            if (tMLModule is null)
+            if (tmlModule is null)
             {
                 Logger.LogMessage("Terraprisma", "Failed to resolve a patchable module, aborting.");
                 return;
             }
 
-            Patcher tMLPatcher = new(
-                tMLModule,
+            Patcher tmlPatcher = new(
+                tmlModule,
                 ModResolver.AvailableMods.SelectMany(x => x.ResolveVisitors()).ToList()
             );
             
-            PatchRuntime.RunModule(tMLPatcher.PatchModule(), args);
+            PatchRuntime.RunModule(tmlPatcher.PatchModule(), args);
         }
 
         /// <summary>
-        ///         Renders the large Terraprisma sword in the console.
+        ///     Renders the large Terraprisma sword in the console.
         /// </summary>
         private static void WritePrettySword()
         {
