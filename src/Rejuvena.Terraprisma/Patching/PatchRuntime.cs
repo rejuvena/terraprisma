@@ -18,6 +18,8 @@ namespace Rejuvena.Terraprisma.Patching
     {
         public static readonly NativeAssemblyLoadContext LoadContext = new();
 
+        public static Assembly? TmlAssembly = null;
+
         /// <summary>
         ///     A dictionary containing hardcoded path redirects.
         /// </summary>
@@ -48,7 +50,7 @@ namespace Rejuvena.Terraprisma.Patching
 
             module.Write(moduleStream, new WriterParameters());
 
-            string tempFile = Path.Join(Program.TerrarprismaDataPath, "Temp", "temp.dll");
+            string tempFile = Path.Join(Program.TerrarprismaDataPath, "Temp", "tModLoader.dll");
 
             Directory.CreateDirectory(Path.Join(Program.TerrarprismaDataPath, "Temp"));
             
@@ -61,9 +63,9 @@ namespace Rejuvena.Terraprisma.Patching
             byte[] data = moduleStream.ToArray();
             Assembly tmlAsm = Assembly.Load(data, moduleStream.ToArray());
              */
-            Assembly tmlAsm = LoadContext.LoadFromAssemblyPath(tempFile);
+            TmlAssembly = LoadContext.LoadFromAssemblyPath(tempFile);
 
-            InvokeMonoLaunch(tmlAsm, args);
+            InvokeMonoLaunch(TmlAssembly, args);
         }
 
         private static void InvokeMonoLaunch(Assembly assembly, IEnumerable args)
@@ -120,6 +122,9 @@ namespace Rejuvena.Terraprisma.Patching
             string asmName = name.Name ?? "";
             string asmVers = name.Version?.ToString() ?? "";
 
+            if (asmName == "tModLoader")
+                return TmlAssembly!;
+            
             if (HardcodedAssemblyNames.ContainsKey(asmName))
                 return Assembly.LoadFile(HardcodedAssemblyNames[asmName]);
 
