@@ -37,6 +37,18 @@ namespace Rejuvena.Terraprisma.Patching
                     "Microsoft.CodeAnalysis.dll"
                 )
             },
+            // Linux issue?
+            {
+                "System.Configuration.ConfigurationManager", Path.Combine(
+                    Program.LocalPath,
+                    "Libraries",
+                    "system.configuration.configurationmanager",
+                    "6.0.0",
+                    "lib",
+                    "net6.0",
+                    "System.Configuration.ConfigurationManager.dll"
+                )
+            }
         };
 
         /// <summary>
@@ -53,12 +65,12 @@ namespace Rejuvena.Terraprisma.Patching
             string tempFile = Path.Join(Program.TerrarprismaDataPath, "Temp", "tModLoader.dll");
 
             Directory.CreateDirectory(Path.Join(Program.TerrarprismaDataPath, "Temp"));
-            
+
             if (File.Exists(tempFile))
                 File.Delete(tempFile);
-            
+
             File.WriteAllBytes(tempFile, moduleStream.ToArray());
-            
+
             /*
             byte[] data = moduleStream.ToArray();
             Assembly tmlAsm = Assembly.Load(data, moduleStream.ToArray());
@@ -124,7 +136,7 @@ namespace Rejuvena.Terraprisma.Patching
 
             if (asmName == "tModLoader")
                 return TmlAssembly!;
-            
+
             if (HardcodedAssemblyNames.ContainsKey(asmName))
                 return Assembly.LoadFile(HardcodedAssemblyNames[asmName]);
 
