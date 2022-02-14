@@ -8,6 +8,8 @@
         <Nullable>enable</Nullable>
         <LangVersion>default</LangVersion>
         <OutDir>$(tModLoaderPath)</OutDir>
+        <AssemblyVersion>1.0.0.1</AssemblyVersion>
+        <FileVersion>1.0.0.1</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
