@@ -159,9 +159,9 @@ namespace Rejuvena.Terraprisma.Patching
 
         private static string ResolveUnprobableAssemblyPath(string depName)
         {
-            string dependency = depName.Split('/', 1)[0];
+            string dependency = depName.Split('/', 2)[0];
 
-            string depPath = Path.Combine(Program.Dependencies.Libraries[dependency][depName].Split('/'));
+            string depPath = Path.Combine(Program.Dependencies.Libraries[depName]["path"].Split('/'));
             string path = Path.Combine(Program.LocalPath, "Libraries", depPath, "lib");
             
             return Path.Combine(path, new DirectoryInfo(path).GetDirectories()[0].ToString(), dependency + ".dll");
