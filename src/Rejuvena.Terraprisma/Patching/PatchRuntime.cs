@@ -105,10 +105,13 @@ namespace Rejuvena.Terraprisma.Patching
             if (name.Name == "tModLoader")
                 return TmlAssembly!;
 
-            string? asm = Program.Dependencies.Libraries.Keys.FirstOrDefault(x => x.Split('/', 1)[0] == name.Name);
-            bool probable = asm is null || !Program.Dependencies.Libraries[asm].ContainsKey("path");
+            string? asm = Program.Dependencies.Libraries.Keys.FirstOrDefault(
+                x => x.Split('/', 2)[0] == name.Name || x == name.Name
+            );
 
-            string path = probable ? ResolveProbableAssemblyPath(name) : ResolveUnprobableAssemblyPath(asm);
+            string path = asm is not null && Program.Dependencies.Libraries[asm].ContainsKey("path") 
+                ? ResolveUnprobableAssemblyPath(asm)
+                : ResolveProbableAssemblyPath(name);
 
             Logger.LogMessage("PatchRuntime", "Debug", "Resolved library at: " + path);
 
