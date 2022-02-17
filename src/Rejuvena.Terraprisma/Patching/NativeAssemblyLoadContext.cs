@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using Rejuvena.Terraprisma.Utilities;
@@ -13,6 +14,8 @@ namespace Rejuvena.Terraprisma.Patching
         {
             ResolvingUnmanagedDll += (assembly, s) => LoadUnmanagedDll(s);
         }
+
+        public IntPtr LoadUnmanaged(string s) => LoadUnmanagedDll(s);
         
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
         {

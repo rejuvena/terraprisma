@@ -87,6 +87,7 @@ namespace Rejuvena.Terraprisma.Patching
             // Load libraries required by tModLoader into the AppDomain manually.
             AppDomain.CurrentDomain.AssemblyResolve += ResolveFromLibraryFolder;
             LoadContext.Resolving += LoadContextOnResolving;
+            AssemblyLoadContext.Default.ResolvingUnmanagedDll += (assembly, s) => LoadContext.LoadUnmanaged(s);
 
             DirectoryInfo nativeDir = new(Path.Combine(Program.LocalPath, "Libraries", "Native", GetNativeDirectory()));
             FileInfo[] nativeFiles = nativeDir.GetFiles();
