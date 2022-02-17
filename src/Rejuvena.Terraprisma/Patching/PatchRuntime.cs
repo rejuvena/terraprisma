@@ -93,8 +93,10 @@ namespace Rejuvena.Terraprisma.Patching
 
             foreach (FileInfo nativeDll in nativeFiles)
             {
-                Logger.LogMessage("PatchRuntime", "Debug", "Loaded native DLL: " + nativeDll.Name);
-                NativeLibrary.Load(nativeDll.FullName);
+                if (NativeLibrary.Load(nativeDll.FullName) != IntPtr.Zero)
+                    Logger.LogMessage("PatchRuntime", "Debug", "Loaded native DLL: " + nativeDll.Name);
+                else
+                    Logger.LogMessage("PatchRuntime", "Debug", "Failed to load native DLL: " + nativeDll.Name);
             }
         }
 
