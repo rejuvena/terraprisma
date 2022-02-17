@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Mono.Cecil;
+using Newtonsoft.Json;
 using Rejuvena.Terraprisma.Patching;
 using Rejuvena.Terraprisma.Patching.API;
 using Rejuvena.Terraprisma.Patching.Cecil;
@@ -16,6 +17,7 @@ namespace Rejuvena.Terraprisma
     {
         public static readonly string LocalPath = AppDomain.CurrentDomain.BaseDirectory;
         public static readonly string TerrarprismaDataPath = Path.Combine(LocalPath, "Terraprisma");
+        public static DepsJson Dependencies = new();
 
         /// <summary>
         ///     The entrypoint method.
@@ -39,6 +41,12 @@ namespace Rejuvena.Terraprisma
                     "Debug",
                     $"Launched with arguments: {string.Join(", ", args)}"
                 );
+
+            Logger.LogMessage("Terraprisma", "Debug", "Reading tModLoader.deps.json.");
+            
+            Dependencies = JsonConvert.DeserializeObject<DepsJson>(
+                File.ReadAllText(Path.Combine(LocalPath, "tModLoader.deps.json"))
+            ) ?? new DepsJson();
 
             ModResolver.Resolve();
 

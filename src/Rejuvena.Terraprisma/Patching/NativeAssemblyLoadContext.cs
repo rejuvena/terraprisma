@@ -9,6 +9,11 @@ namespace Rejuvena.Terraprisma.Patching
 {
     public class NativeAssemblyLoadContext : AssemblyLoadContext
     {
+        public NativeAssemblyLoadContext()
+        {
+            ResolvingUnmanagedDll += (assembly, s) => LoadUnmanagedDll(s);
+        }
+        
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
         {
             Logger.LogMessage("NativeAssemblyLoadContext", "Debug", "Native resolve: " + unmanagedDllName);
@@ -23,18 +28,15 @@ namespace Rejuvena.Terraprisma.Patching
                 match is null ? "Not found." : "Attempting load: " + match
             );
 
-            if (match is not null && NativeLibrary.TryLoad(match, out IntPtr handle))
+            if (match is not null)
             {
                 Logger.LogMessage("NativeAssemblyLoadContext", "Debug", "Success!");
-                return handle;
+                return LoadUnmanagedDllFromPath(match);
             }
 
             Logger.LogMessage("NativeAssemblyLoadContext", "Error", "Failed to load: " + match);
             throw new FileLoadException("Failed to load: " + match);
-
-            return base.LoadUnmanagedDll(unmanagedDllName);
         }
-
 
         private static string GetNativeDir()
         {

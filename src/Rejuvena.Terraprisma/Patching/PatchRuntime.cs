@@ -18,38 +18,7 @@ namespace Rejuvena.Terraprisma.Patching
     {
         public static readonly NativeAssemblyLoadContext LoadContext = new();
 
-        public static Assembly? TmlAssembly = null;
-
-        /// <summary>
-        ///     A dictionary containing hardcoded path redirects.
-        /// </summary>
-        public static readonly Dictionary<string, string> HardcodedAssemblyNames = new()
-        {
-            {"ReLogic", Path.Combine(Program.LocalPath, "Libraries", "ReLogic", "1.0.0", "ReLogic.dll")},
-            {
-                "Microsoft.CodeAnalysis", Path.Combine(
-                    Program.LocalPath,
-                    "Libraries",
-                    "microsoft.codeanalysis.common",
-                    "4.0.0-6.final",
-                    "lib",
-                    "netcoreapp3.1",
-                    "Microsoft.CodeAnalysis.dll"
-                )
-            },
-            // Linux issue?
-            {
-                "System.Configuration.ConfigurationManager", Path.Combine(
-                    Program.LocalPath,
-                    "Libraries",
-                    "system.configuration.configurationmanager",
-                    "6.0.0",
-                    "lib",
-                    "net6.0",
-                    "System.Configuration.ConfigurationManager.dll"
-                )
-            }
-        };
+        public static Assembly? TmlAssembly;
 
         /// <summary>
         ///     Runs tModLoader, assuming the provided <paramref name="module"/> is tModLoader's.
@@ -119,9 +88,10 @@ namespace Rejuvena.Terraprisma.Patching
             AppDomain.CurrentDomain.AssemblyResolve += ResolveFromLibraryFolder;
             LoadContext.Resolving += LoadContextOnResolving;
 
-            // TODO: This seems useless?
-            foreach (FileInfo nativeDll in new DirectoryInfo(Path.Combine(Program.LocalPath, "Libraries", "Native",
-                GetNativeDirectory())).GetFiles())
+            foreach (FileInfo nativeDll in new DirectoryInfo(
+                    Path.Combine(Program.LocalPath, "Libraries", "Native", GetNativeDirectory())
+                ).GetFiles()
+            )
                 NativeLibrary.Load(nativeDll.FullName);
         }
 
@@ -131,15 +101,25 @@ namespace Rejuvena.Terraprisma.Patching
         private static Assembly ResolveFromLibraryFolder(object? sender, ResolveEventArgs args)
         {
             AssemblyName name = new(args.Name);
-            string asmName = name.Name ?? "";
-            string asmVers = name.Version?.ToString() ?? "";
 
-            if (asmName == "tModLoader")
+            if (name.Name == "tModLoader")
                 return TmlAssembly!;
 
-            if (HardcodedAssemblyNames.ContainsKey(asmName))
-                return Assembly.LoadFile(HardcodedAssemblyNames[asmName]);
+            string? asm = Program.Dependencies.Libraries.Keys.FirstOrDefault(x => x.Split('/', 1)[0] == name.Name);
+            bool probable = asm is null || !Program.Dependencies.Libraries[asm].ContainsKey("path");
 
+            string path = probable ? ResolveProbableAssemblyPath(name) : ResolveUnprobableAssemblyPath(asm);
+
+            Logger.LogMessage("PatchRuntime", "Debug", "Resolved library at: " + path);
+
+            return Assembly.LoadFile(path);
+        }
+
+        private static string ResolveProbableAssemblyPath(AssemblyName name)
+        {
+            string asmName = name.Name ?? "";
+            string asmVers = name.Version?.ToString() ?? "";
+            
             // 1.0.0.0 is shortened to 1.0.0 in the Libraries folder.
             if (asmVers is "1.0.0.0" or "")
                 asmVers = "1.0.0";
@@ -171,11 +151,19 @@ namespace Rejuvena.Terraprisma.Patching
                 path = Path.Combine(Program.LocalPath, "Libraries", asmName, asmVers, "lib", netVer, asmName + ".dll");
             }
 
-            Logger.LogMessage("PatchRuntime", "Debug", "Resolved library at: " + path);
-
-            return Assembly.LoadFile(path);
+            return path;
         }
 
+        private static string ResolveUnprobableAssemblyPath(string depName)
+        {
+            string dependency = depName.Split('/', 1)[0];
+
+            string depPath = Path.Combine(Program.Dependencies.Libraries[dependency][depName].Split('/'));
+            string path = Path.Combine(Program.LocalPath, "Libraries", depPath, "lib");
+            
+            return Path.Combine(path, new DirectoryInfo(path).GetDirectories()[0].ToString(), dependency + ".dll");
+        }
+        
         private static string GetNativeDirectory()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
