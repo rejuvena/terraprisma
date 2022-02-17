@@ -88,11 +88,14 @@ namespace Rejuvena.Terraprisma.Patching
             AppDomain.CurrentDomain.AssemblyResolve += ResolveFromLibraryFolder;
             LoadContext.Resolving += LoadContextOnResolving;
 
-            foreach (FileInfo nativeDll in new DirectoryInfo(
-                    Path.Combine(Program.LocalPath, "Libraries", "Native", GetNativeDirectory())
-                ).GetFiles()
-            )
+            DirectoryInfo nativeDir = new(Path.Combine(Program.LocalPath, "Libraries", "Native", GetNativeDirectory()));
+            FileInfo[] nativeFiles = nativeDir.GetFiles();
+
+            foreach (FileInfo nativeDll in nativeFiles)
+            {
+                Logger.LogMessage("PatchRuntime", "Debug", "Loaded native DLL: " + nativeDll.Name);
                 NativeLibrary.Load(nativeDll.FullName);
+            }
         }
 
         private static Assembly LoadContextOnResolving(AssemblyLoadContext arg1, AssemblyName arg2) =>
