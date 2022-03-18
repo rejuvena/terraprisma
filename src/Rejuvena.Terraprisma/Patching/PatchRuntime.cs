@@ -91,7 +91,7 @@ namespace Rejuvena.Terraprisma.Patching
             LoadContext.Resolving += LoadContextOnResolving;
             AssemblyLoadContext.Default.ResolvingUnmanagedDll += (assembly, s) => LoadContext.LoadUnmanaged(s);
 
-            DirectoryInfo nativeDir = new(Path.Combine(Program.LocalPath, "Libraries", "Native", GetNativeDirectory()));
+            /*DirectoryInfo nativeDir = new(Path.Combine(Program.LocalPath, "Libraries", "Native", GetNativeDirectory()));
             FileInfo[] nativeFiles = nativeDir.GetFiles();
 
             foreach (FileInfo nativeDll in nativeFiles)
@@ -100,7 +100,7 @@ namespace Rejuvena.Terraprisma.Patching
                     Logger.LogMessage("PatchRuntime", "Debug", "Loaded native DLL: " + nativeDll.Name);
                 else
                     Logger.LogMessage("PatchRuntime", "Debug", "Failed to load native DLL: " + nativeDll.Name);
-            }
+            }*/
         }
 
         private static Assembly LoadContextOnResolving(AssemblyLoadContext arg1, AssemblyName arg2) =>

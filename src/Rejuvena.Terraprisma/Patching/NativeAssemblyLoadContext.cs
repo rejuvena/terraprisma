@@ -16,7 +16,7 @@ namespace Rejuvena.Terraprisma.Patching
         }
 
         public IntPtr LoadUnmanaged(string s) => LoadUnmanagedDll(s);
-        
+
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
         {
             Logger.LogMessage("NativeAssemblyLoadContext", "Debug", "Native resolve: " + unmanagedDllName);
