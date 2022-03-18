@@ -52,7 +52,9 @@ echo "This may take a few moments."
 echo "Logging to $LogFile" 2>&1 | tee -a "$LogFile"
 
 if [[ "$_uname" == *"_NT"* ]]; then
-	run_script ./Remove13_64Bit.sh 2>&1 | tee -a "$LogFile"
+	# Interferes with the inclusion of some Terraprisma libraries.
+	# run_script ./Remove13_64Bit.sh 2>&1 | tee -a "$LogFile"
+	echo -e "\033[31mSKIPPING CHECKS FOR THE REMOVAL OF TML 64BIT AS IT INTERFERES WITH TERRAPRISMA; ISSUES MAY OCCUR"
 fi
 
 . ./UnixLinkerFix.sh
