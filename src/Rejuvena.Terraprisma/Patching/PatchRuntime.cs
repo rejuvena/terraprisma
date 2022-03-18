@@ -20,6 +20,8 @@ namespace Rejuvena.Terraprisma.Patching
 
         public static Assembly? TmlAssembly;
 
+        internal static readonly Dictionary<string, string> AssemblyMap = new();
+
         /// <summary>
         ///     Runs tModLoader, assuming the provided <paramref name="module"/> is tModLoader's.
         /// </summary>
@@ -102,7 +104,7 @@ namespace Rejuvena.Terraprisma.Patching
         }
 
         private static Assembly LoadContextOnResolving(AssemblyLoadContext arg1, AssemblyName arg2) =>
-            ResolveFromLibraryFolder(null, new ResolveEventArgs(arg2.FullName ?? "", null));
+            ResolveFromLibraryFolder(null, new ResolveEventArgs(arg2.FullName, null));
 
         private static Assembly ResolveFromLibraryFolder(object? sender, ResolveEventArgs args)
         {
@@ -110,69 +112,13 @@ namespace Rejuvena.Terraprisma.Patching
 
             if (name.Name == "tModLoader")
                 return TmlAssembly!;
-
-            string? asm = Program.Dependencies.Libraries.Keys.FirstOrDefault(
-                x => x.Split('/', 2)[0] == name.Name || x == name.Name
-            );
-
-            string path = asm is not null && Program.Dependencies.Libraries[asm].ContainsKey("path") 
-                ? ResolveUnprobableAssemblyPath(asm)
-                : ResolveProbableAssemblyPath(name);
-
-            Logger.LogMessage("PatchRuntime", "Debug", "Resolved library at: " + path);
-
-            return Assembly.LoadFile(path);
-        }
-
-        private static string ResolveProbableAssemblyPath(AssemblyName name)
-        {
-            string asmName = name.Name ?? "";
-            string asmVers = name.Version?.ToString() ?? "";
             
-            // 1.0.0.0 is shortened to 1.0.0 in the Libraries folder.
-            if (asmVers is "1.0.0.0" or "")
-                asmVers = "1.0.0";
+            if (AssemblyMap.ContainsKey(name.Name ??= ""))
+                return Assembly.LoadFile(AssemblyMap[name.Name]);
 
-            string path = Path.Combine(Program.LocalPath, "Libraries", asmName, asmVers, asmName + ".dll");
-
-            // If no correct version is found, resort to the first one located.
-            if (!Directory.Exists(Path.Combine(Program.LocalPath, "Libraries", asmName, asmVers)))
-            {
-                // Set the version to the first one found.
-                asmVers = new DirectoryInfo(Path.Combine(
-                    Program.LocalPath,
-                    "Libraries",
-                    asmName
-                )).GetDirectories()[0].Name;
-
-                path = Path.Combine(Program.LocalPath, "Libraries", asmName, asmVers, asmName + ".dll");
-            }
-
-            // Handle stupid "lib" folder stuff.
-            // Sometimes, DLLs are further embedded below this folder.
-            string versionFolder = Path.Combine(Program.LocalPath, "Libraries", asmName, asmVers);
-
-            if (!File.Exists(path) && Directory.Exists(Path.Combine(versionFolder, "lib")))
-            {
-                // Resolve the first folder beneath "lib", such as net6.0, etc.
-                string netVer = new DirectoryInfo(Path.Combine(versionFolder, "lib")).GetDirectories()[0].Name;
-
-                path = Path.Combine(Program.LocalPath, "Libraries", asmName, asmVers, "lib", netVer, asmName + ".dll");
-            }
-
-            return path;
+            throw new FileNotFoundException(name.Name);
         }
 
-        private static string ResolveUnprobableAssemblyPath(string depName)
-        {
-            string dependency = depName.Split('/', 2)[0];
-
-            string depPath = Path.Combine(Program.Dependencies.Libraries[depName]["path"].Split('/'));
-            string path = Path.Combine(Program.LocalPath, "Libraries", depPath, "lib");
-            
-            return Path.Combine(path, new DirectoryInfo(path).GetDirectories()[0].ToString(), dependency + ".dll");
-        }
-        
         private static string GetNativeDirectory()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

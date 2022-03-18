@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.Loader;
 using Mono.Cecil;
 using Newtonsoft.Json;
 using Rejuvena.Terraprisma.Patching;
@@ -17,7 +18,6 @@ namespace Rejuvena.Terraprisma
     {
         public static readonly string LocalPath = AppDomain.CurrentDomain.BaseDirectory;
         public static readonly string TerrarprismaDataPath = Path.Combine(LocalPath, "Terraprisma");
-        public static DepsJson Dependencies = new();
 
         /// <summary>
         ///     The entrypoint method.
@@ -42,11 +42,7 @@ namespace Rejuvena.Terraprisma
                     $"Launched with arguments: {string.Join(", ", args)}"
                 );
 
-            Logger.LogMessage("Terraprisma", "Debug", "Reading tModLoader.deps.json.");
-            
-            Dependencies = JsonConvert.DeserializeObject<DepsJson>(
-                File.ReadAllText(Path.Combine(LocalPath, "tModLoader.deps.json"))
-            ) ?? new DepsJson();
+            PreLoadLibraries();
 
             ModResolver.Resolve();
 
@@ -80,6 +76,30 @@ namespace Rejuvena.Terraprisma
 
             using StreamReader reader = new(img);
             Console.WriteLine(reader.ReadToEnd());
+        }
+
+        private static void PreLoadLibraries()
+        {
+            DirectoryInfo libraryDir = new(Path.Combine(LocalPath, "Libraries"));
+            FileInfo[] libraryFiles = libraryDir
+                .GetDirectories("**", SearchOption.AllDirectories)
+                .SelectMany(x => x.GetFiles())
+                .ToArray();
+            string[] blacklist =
+            {
+                "Native",
+                "runtimes",
+                "resources"
+            };
+
+            foreach (FileInfo libraryFile in libraryFiles)
+            {
+                if (libraryFile.Extension != ".dll" || libraryFile.FullName.Split(Path.DirectorySeparatorChar).Any(
+                        x => blacklist.Any(x.Equals)
+                    ) || libraryFile.Name.EndsWith("resources.dll")) continue;
+                
+                PatchRuntime.AssemblyMap.Add(Path.GetFileNameWithoutExtension(libraryFile.Name), libraryFile.FullName);
+            }
         }
     }
 }
