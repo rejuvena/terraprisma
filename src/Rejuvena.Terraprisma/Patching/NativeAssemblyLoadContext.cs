@@ -10,6 +10,8 @@ namespace Rejuvena.Terraprisma.Patching
 {
     public class NativeAssemblyLoadContext : AssemblyLoadContext
     {
+        public static readonly object ResolverLock = new();
+        
         public NativeAssemblyLoadContext()
         {
             ResolvingUnmanagedDll += (assembly, s) => LoadUnmanagedDll(s);
@@ -17,28 +19,33 @@ namespace Rejuvena.Terraprisma.Patching
 
         public IntPtr LoadUnmanaged(string s) => LoadUnmanagedDll(s);
 
-        protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
+        protected override IntPtr LoadUnmanagedDll(string unmanagedDllName) => LoadNative(unmanagedDllName);
+
+        internal static IntPtr LoadNative(string unmanagedDllName)
         {
-            Logger.LogMessage("NativeAssemblyLoadContext", "Debug", "Native resolve: " + unmanagedDllName);
-
-            string dir = Path.Combine(Program.LocalPath, "Libraries", "Native", GetNativeDir());
-            string[] files = Directory.GetFiles(dir, $"*{unmanagedDllName}*", SearchOption.AllDirectories);
-            string? match = files.FirstOrDefault();
-
-            Logger.LogMessage(
-                "NativeAssemblyLoadContext",
-                "Debug",
-                match is null ? "Not found." : "Attempting load: " + match
-            );
-
-            if (match is not null)
+            lock (ResolverLock)
             {
-                Logger.LogMessage("NativeAssemblyLoadContext", "Debug", "Success!");
-                return LoadUnmanagedDllFromPath(match);
-            }
+                Logger.LogMessage("NativeAssemblyLoadContext", "Debug", "Native resolve: " + unmanagedDllName);
 
-            Logger.LogMessage("NativeAssemblyLoadContext", "Error", "Failed to load: " + match);
-            throw new FileLoadException("Failed to load: " + match);
+                string dir = Path.Combine(Program.LocalPath, "Libraries", "Native", GetNativeDir());
+                string[] files = Directory.GetFiles(dir, $"*{unmanagedDllName}*", SearchOption.AllDirectories);
+                string? match = files.FirstOrDefault();
+
+                Logger.LogMessage(
+                    "NativeAssemblyLoadContext",
+                    "Debug",
+                    match is null ? "Not found." : "Attempting load: " + match
+                );
+
+                if (match is not null)
+                {
+                    Logger.LogMessage("NativeAssemblyLoadContext", "Debug", "Success!");
+                    return NativeLibrary.Load(match);
+                }
+
+                Logger.LogMessage("NativeAssemblyLoadContext", "Error", "Failed to load: " + match);
+                throw new FileLoadException("Failed to load: " + match);
+            }
         }
 
         private static string GetNativeDir()
