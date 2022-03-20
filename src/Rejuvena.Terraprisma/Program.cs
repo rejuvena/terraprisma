@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
+using System.Threading.Tasks;
 using Mono.Cecil;
 using Newtonsoft.Json;
 using Rejuvena.Terraprisma.Patching;
@@ -23,7 +24,7 @@ namespace Rejuvena.Terraprisma
         ///     The entrypoint method.
         /// </summary>
         /// <param name="args"><see cref="Environment.GetCommandLineArgs"/></param>
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             Directory.CreateDirectory(Path.Combine(TerrarprismaDataPath, "Mods"));
             Directory.CreateDirectory(Path.Combine(TerrarprismaDataPath, "Logs"));
@@ -59,7 +60,10 @@ namespace Rejuvena.Terraprisma
                 ModResolver.AvailableMods.SelectMany(x => x.ResolveVisitors()).ToList()
             );
             
-            PatchRuntime.RunModule(tmlPatcher.PatchModule(), args);
+            await Task.Run(() =>
+            {
+                PatchRuntime.RunModule(tmlPatcher.PatchModule(), args);
+            });
         }
 
         /// <summary>
