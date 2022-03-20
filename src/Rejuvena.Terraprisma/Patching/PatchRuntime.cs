@@ -53,7 +53,7 @@ namespace Rejuvena.Terraprisma.Patching
 
         private static void InvokeMonoLaunch(Assembly assembly, IEnumerable args)
         {
-            Type? monoLaunch = assembly.GetType("MonoLaunch");
+            Type? monoLaunch = assembly.GetType(/*"MonoLaunch"*/ "Terraria.Program");
 
             if (monoLaunch is null)
             {
@@ -61,7 +61,7 @@ namespace Rejuvena.Terraprisma.Patching
                 return;
             }
 
-            MethodInfo? main = monoLaunch.GetMethod("Main", BindingFlags.Static | BindingFlags.NonPublic);
+            MethodInfo? main = monoLaunch.GetMethod(/*"Main"*/ "LaunchGame", BindingFlags.Static | /*BindingFlags.NonPublic*/ BindingFlags.Public);
 
             if (main is null)
             {
@@ -71,7 +71,7 @@ namespace Rejuvena.Terraprisma.Patching
 
             try
             {
-                main.Invoke(null, new object?[] {args});
+                main.Invoke(null, /*new object?[] {args}*/ new object?[] {args, true});
             }
             catch (Exception e)
             {

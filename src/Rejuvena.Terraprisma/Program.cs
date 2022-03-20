@@ -60,6 +60,8 @@ namespace Rejuvena.Terraprisma
                 ModResolver.AvailableMods.SelectMany(x => x.ResolveVisitors()).ToList()
             );
             
+            Environment.SetEnvironmentVariable("FNA_WORKAROUND_WINDOW_RESIZABLE", "1");
+            
             await Task.Run(() =>
             {
                 PatchRuntime.RunModule(tmlPatcher.PatchModule(), args);
